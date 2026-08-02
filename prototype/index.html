@@ -465,6 +465,7 @@
         <button class="menu-btn" id="setting-menu-btn">Setting</button>
         <div class="menu-dropdown" id="setting-menu-dropdown">
           <div class="menu-section-label">表示</div>
+          <label class="menu-check-row"><input type="checkbox" id="setting-priority-enabled" /> 優先度機能を有効にする</label>
           <label class="menu-check-row"><input type="checkbox" id="setting-groups-enabled" /> グループ機能を有効にする</label>
           <label class="menu-check-row"><input type="checkbox" id="setting-tags-enabled" /> タグ機能を有効にする</label>
           <div class="menu-sep"></div>
@@ -542,7 +543,7 @@
     <div class="filter-wrap">
       <button class="btn ghost" id="filter-btn">フィルター<span class="filter-badge" id="filter-badge" hidden>0</span></button>
       <div class="filter-popover" id="filter-popover">
-        <div>
+        <div id="filter-priority-wrap">
           <div class="filter-label">優先度</div>
           <div class="filter-prio-row" id="filter-prio-row">
             <button type="button" class="filter-chip" data-prio="high"><span class="prio-dot prio-high"></span>高</button>
@@ -606,7 +607,7 @@
         <select id="f-group-select"></select>
       </div>
     </div>
-    <div class="field">
+    <div class="field" id="f-priority-field">
       <label>優先度</label>
       <div class="prio-row" id="f-priority-row">
         <button type="button" class="prio-choice" data-prio="low"><span class="prio-dot prio-low"></span>低</button>
@@ -700,7 +701,7 @@
     var now = new Date().toISOString();
     var grpProjA = uid("grp");
     return {
-      settings: { multiUser: false, currentUser: "泉谷", savePath: "", sortMode: "created", groupsEnabled: true, tagsEnabled: true, theme: "dark" },
+      settings: { multiUser: false, currentUser: "泉谷", savePath: "", sortMode: "created", priorityEnabled: true, groupsEnabled: true, tagsEnabled: true, theme: "dark" },
       columns: [
         {
           id: uid("col"), name: "未着手", order: 0, fixed: "start", groups: [], color: null,
@@ -739,8 +740,9 @@
   }
 
   function migrate(data) {
-    if (!data.settings) data.settings = { multiUser: false, currentUser: "泉谷", savePath: "", sortMode: "created", groupsEnabled: true, tagsEnabled: true, theme: "dark" };
+    if (!data.settings) data.settings = { multiUser: false, currentUser: "泉谷", savePath: "", sortMode: "created", priorityEnabled: true, groupsEnabled: true, tagsEnabled: true, theme: "dark" };
     if (data.settings.sortMode !== "manual") data.settings.sortMode = "created";
+    if (data.settings.priorityEnabled === undefined) data.settings.priorityEnabled = true;
     if (data.settings.groupsEnabled === undefined) data.settings.groupsEnabled = true;
     if (data.settings.tagsEnabled === undefined) data.settings.tagsEnabled = true;
     if (data.settings.theme !== "light") data.settings.theme = "dark";
@@ -968,7 +970,7 @@
   function cardMatchesFilters(card) {
     var q = searchInput.value.trim().toLowerCase();
     if (q && (card.title || "").toLowerCase().indexOf(q) === -1) return false;
-    if (filters.priorities.size > 0 && !filters.priorities.has(card.priority || "mid")) return false;
+    if (state.settings.priorityEnabled !== false && filters.priorities.size > 0 && !filters.priorities.has(card.priority || "mid")) return false;
     if (filters.dueFrom && (!card.dueDate || card.dueDate < filters.dueFrom)) return false;
     if (filters.dueTo && (!card.dueDate || card.dueDate > filters.dueTo)) return false;
     if (filters.tags.size > 0) {
@@ -1029,8 +1031,9 @@
         '</span></div>';
     }
 
+    var prioDotHtml = state.settings.priorityEnabled !== false ? '<span class="prio-dot prio-' + (card.priority || "mid") + '"></span>' : "";
     cardEl.innerHTML =
-      '<div class="card-top"><span class="prio-dot prio-' + (card.priority || "mid") + '"></span><span class="card-title">' + escapeHtml(card.title) + '</span></div>' +
+      '<div class="card-top">' + prioDotHtml + '<span class="card-title">' + escapeHtml(card.title) + '</span></div>' +
       tagsHtml + memoHtml + dateHtml + linksHtml + metaHtml;
 
     cardEl.querySelectorAll(".link-chip").forEach(function (chip) {
@@ -1174,8 +1177,10 @@
     totalCountEl.textContent = "全 " + total + " 件";
     document.getElementById("user-chip").hidden = !multiUser;
     document.getElementById("sort-mode-select").value = state.settings.sortMode;
+    document.getElementById("setting-priority-enabled").checked = state.settings.priorityEnabled !== false;
     document.getElementById("setting-groups-enabled").checked = groupsOn;
     document.getElementById("setting-tags-enabled").checked = state.settings.tagsEnabled !== false;
+    document.getElementById("filter-priority-wrap").hidden = state.settings.priorityEnabled === false;
     updateThemeButtons();
     attachStaticHandlers();
     updateBulkBar();
@@ -1618,7 +1623,7 @@
     fTitle.value = card ? card.title : "";
     fAssignee.value = card ? card.assignee || "" : "";
     fMemo.value = card ? card.memo || "" : "";
-    fStartDate = card ? card.startDate || "" : "";
+    fStartDate = card ? card.startDate || "" : todayStr();
     fDueDate = card ? card.dueDate || "" : "";
     updateDateButtons();
     currentLinks = card && card.links ? card.links.map(function (l) { return { id: l.id || uid("lnk"), label: l.label || "", url: l.url || "" }; }) : [];
@@ -1626,7 +1631,7 @@
     currentTags = card && card.tags ? card.tags.slice() : [];
     renderTagsEditor();
     tagInput.value = "";
-    selectedPriority = card ? (card.priority || "mid") : "mid";
+    selectedPriority = card ? (card.priority || "mid") : "low";
     updatePrioChoices();
 
     statusSelect.innerHTML = state.columns.slice().sort(function (a, b) { return a.order - b.order; }).map(function (c) {
@@ -1636,6 +1641,7 @@
     refreshGroupOptions(card ? card.groupId : presetGroupId);
 
     document.getElementById("f-assignee-field").style.display = state.settings.multiUser ? "" : "none";
+    document.getElementById("f-priority-field").style.display = state.settings.priorityEnabled !== false ? "" : "none";
     document.getElementById("f-group-field").style.display = state.settings.groupsEnabled !== false ? "" : "none";
     document.getElementById("f-tags-field").style.display = state.settings.tagsEnabled !== false ? "" : "none";
     document.getElementById("btn-delete-card").style.display = card ? "" : "none";
@@ -1733,7 +1739,7 @@
     filterToBtn.textContent = filters.dueTo ? "終了: " + formatShort(filters.dueTo) : "終了: 未設定";
     filterToBtn.classList.toggle("empty", !filters.dueTo);
     document.getElementById("filter-assignee-wrap").hidden = !state.settings.multiUser;
-    var activeCount = filters.priorities.size + (filters.dueFrom ? 1 : 0) + (filters.dueTo ? 1 : 0) + (filters.assignee ? 1 : 0) + filters.tags.size;
+    var activeCount = (state.settings.priorityEnabled !== false ? filters.priorities.size : 0) + (filters.dueFrom ? 1 : 0) + (filters.dueTo ? 1 : 0) + (filters.assignee ? 1 : 0) + filters.tags.size;
     filterBadge.hidden = activeCount === 0;
     filterBadge.textContent = activeCount;
   }
@@ -1806,6 +1812,11 @@
       settingMenuDropdown.classList.remove("open");
       settingMenuBtn.classList.remove("active");
     }
+  });
+  document.getElementById("setting-priority-enabled").addEventListener("change", function (e) {
+    state.settings.priorityEnabled = e.target.checked;
+    save();
+    render();
   });
   document.getElementById("setting-groups-enabled").addEventListener("change", function (e) {
     state.settings.groupsEnabled = e.target.checked;
