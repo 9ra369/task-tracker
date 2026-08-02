@@ -215,8 +215,11 @@
   .sort-wrap { display: flex; align-items: center; gap: 6px; }
   .sort-label { font-size: 11px; color: var(--text-mid); white-space: nowrap; }
   .sort-wrap select { padding: 5px 8px; font-size: 11.5px; }
+  .sort-hint { font-size: 10.5px; color: var(--warning); white-space: nowrap; cursor: help; }
 
   .count-pill { font-family: var(--font-mono); font-size: 11px; color: var(--text-mid); white-space: nowrap; margin-left: auto; }
+  .save-status { font-size: 11px; color: var(--text-lo); white-space: nowrap; margin-left: auto; transition: opacity 200ms ease; }
+  .save-status.saving { color: var(--accent); }
 
   /* ---------- カレンダーポップオーバー ---------- */
   .cal-popover {
@@ -303,6 +306,12 @@
 
   .group-block { display: flex; flex-direction: column; gap: 6px; }
   .group-header { display: flex; align-items: center; gap: 6px; padding: 0 2px; }
+  .group-collapse-btn {
+    background: transparent; border: none; color: var(--text-lo); font-size: 9px;
+    padding: 2px 3px; border-radius: 4px; flex: 0 0 auto; line-height: 1;
+  }
+  .group-collapse-btn:hover { background: var(--bg-3); color: var(--text-hi); }
+  .group-header.drag-over { outline: 1.5px dashed var(--accent); border-radius: var(--radius-s); }
   .group-name { font-size: 11px; font-weight: 600; color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.03em; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .group-name[contenteditable="true"] { outline: 1px dashed var(--accent); outline-offset: 2px; white-space: normal; text-transform: none; }
   .group-count { font-family: var(--font-mono); font-size: 9.5px; color: var(--text-lo); flex: 0 0 auto; }
@@ -345,6 +354,7 @@
     margin-top: 6px; font-size: 11px; color: var(--text-mid); line-height: 1.45;
     display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
+  .checklist-badge { font-family: var(--font-mono); font-size: 10px; color: var(--success); font-weight: 600; white-space: nowrap; }
 
   .card-dates { margin-top: 7px; }
   .date-range { font-family: var(--font-mono); font-size: 10px; color: var(--text-mid); }
@@ -361,6 +371,7 @@
   }
   .link-chip:hover { background: var(--bg-3-hover); border-color: #3a4053; }
   .link-chip .lbl { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px; }
+  .link-rel-badge { font-size: 9px; color: var(--text-lo); border: 1px solid var(--border); border-radius: 999px; padding: 0 5px; flex: 0 0 auto; }
 
   .card-meta { display: flex; align-items: center; gap: 8px; margin-top: 7px; font-size: 10.5px; color: var(--text-mid); }
   .card-assignee { display: flex; align-items: center; gap: 5px; min-width: 0; }
@@ -397,6 +408,22 @@
   .bulk-bar[hidden] { display: none; }
   .bulk-bar span { font-size: 12px; color: var(--text-hi); white-space: nowrap; }
   .bulk-bar select { padding: 5px 8px; font-size: 11.5px; }
+  .bulk-action-wrap { position: relative; }
+  .bulk-action-popover {
+    position: absolute; bottom: calc(100% + 8px); left: 50%; transform: translateX(-50%);
+    width: 260px; background: var(--bg-2); border: 1px solid var(--border); border-radius: var(--radius-m);
+    padding: 12px; display: none; flex-direction: column; gap: 12px; box-shadow: var(--shadow-menu);
+    max-height: 60vh; overflow-y: auto;
+  }
+  .bulk-action-popover.open { display: flex; }
+  .bulk-action-popover select { width: 100%; }
+  .bulk-tag-remove-row { display: flex; flex-wrap: wrap; gap: 6px; }
+  .bulk-tag-remove-chip {
+    background: var(--bg-3); border: 1px solid var(--border); border-radius: 999px; padding: 3px 9px;
+    font-size: 10.5px; color: var(--text-hi);
+  }
+  .bulk-tag-remove-chip:hover { border-color: var(--danger); color: var(--danger); }
+  .bulk-hint { font-size: 10.5px; color: var(--text-lo); margin: 0; }
 
   /* ---------- モーダル共通（カード詳細・設定） ---------- */
   .scrim { position: fixed; inset: 0; background: var(--scrim-bg); opacity: 0; pointer-events: none; transition: opacity 160ms ease; z-index: 20; }
@@ -420,6 +447,27 @@
   .field label { display: block; font-size: 10.5px; color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 5px; }
   .field input, .field textarea, .field select { width: 100%; }
   .field textarea { resize: vertical; min-height: 64px; }
+  .memo-field-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; }
+  .memo-field-header label { margin-bottom: 0; }
+  .memo-tab-row { display: flex; gap: 2px; }
+  .memo-tab { background: transparent; border: 1px solid var(--border); color: var(--text-mid); padding: 2px 8px; font-size: 10.5px; border-radius: var(--radius-s); }
+  .memo-tab.active { background: var(--bg-3); color: var(--text-hi); border-color: var(--border); }
+  .memo-preview {
+    min-height: 64px; max-height: 220px; overflow-y: auto; background: var(--bg-2);
+    border: 1px solid var(--border); border-radius: var(--radius-s); padding: 8px 10px; font-size: 12.5px; color: var(--text-hi);
+  }
+  .memo-preview:empty::after { content: "（プレビューする内容がありません）"; color: var(--text-lo); font-size: 11.5px; }
+  .md-h { font-weight: 700; margin: 6px 0 3px; }
+  .md-h1 { font-size: 14px; }
+  .md-h2 { font-size: 13px; }
+  .md-h3 { font-size: 12px; color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.03em; }
+  .md-p { margin: 3px 0; line-height: 1.5; }
+  .md-list { margin: 3px 0; padding-left: 18px; }
+  .md-list li { line-height: 1.5; }
+  .md-task { list-style: none; margin-left: -18px; display: flex; gap: 5px; align-items: flex-start; }
+  .md-task.done { color: var(--text-lo); text-decoration: line-through; }
+  .md-checkbox { flex: 0 0 auto; }
+  .memo-preview code { background: var(--bg-3); border-radius: 4px; padding: 1px 5px; font-family: var(--font-mono); font-size: 11.5px; }
   .field-row { display: flex; gap: 10px; }
   .field-row .field { flex: 1; min-width: 0; }
   .prio-row { display: flex; gap: 6px; }
@@ -430,6 +478,8 @@
   .link-row { display: flex; gap: 6px; align-items: center; }
   .link-row input { flex: 1; min-width: 0; }
   .link-row input.link-label { flex: 0 0 40%; }
+  .link-relative-toggle { display: flex; align-items: center; gap: 3px; font-size: 10px; color: var(--text-mid); flex: 0 0 auto; white-space: nowrap; padding: 0 2px; cursor: pointer; }
+  .link-relative-toggle input { width: auto; padding: 0; }
   .link-remove { background: transparent; border: none; color: var(--text-lo); font-size: 15px; padding: 4px 6px; border-radius: 5px; flex: 0 0 auto; }
   .link-remove:hover { background: var(--bg-3); color: var(--danger); }
   .add-link-btn { background: transparent; border: 1px dashed var(--border); border-radius: var(--radius-s); color: var(--text-mid); padding: 6px 8px; font-size: 11.5px; text-align: left; }
@@ -578,8 +628,10 @@
         <option value="created">作成日時順</option>
         <option value="manual">手動並び替え</option>
       </select>
+      <span class="sort-hint" id="sort-hint" hidden title="検索・フィルター中は表示順と保存順がずれるため、手動並び替えのドラッグを一時的に無効化しています">絞り込み中は並び替え不可</span>
     </div>
 
+    <span class="save-status" id="save-status"></span>
     <span class="count-pill" id="total-count">全 0 件</span>
   </div>
 
@@ -595,7 +647,7 @@
   <div class="modal-body">
     <div class="field">
       <label for="f-title">タイトル</label>
-      <input type="text" id="f-title" placeholder="タスク名を入力" />
+      <input type="text" id="f-title" placeholder="タスク名を入力" autocomplete="off" />
     </div>
     <div class="field-row">
       <div class="field">
@@ -632,8 +684,9 @@
     <div class="field" id="f-tags-field">
       <label for="f-tag-input">タグ</label>
       <div class="tag-input-wrap" id="f-tags-wrap">
-        <input type="text" class="tag-input-field" id="f-tag-input" placeholder="入力してEnter" />
+        <input type="text" class="tag-input-field" id="f-tag-input" placeholder="入力してEnter" list="tag-suggestions" />
       </div>
+      <datalist id="tag-suggestions"></datalist>
     </div>
     <div class="field">
       <label>リンク</label>
@@ -641,12 +694,22 @@
       <button type="button" class="add-link-btn" id="add-link-btn" style="margin-top:6px;">＋ リンクを追加</button>
     </div>
     <div class="field">
-      <label for="f-memo">メモ</label>
-      <textarea id="f-memo" placeholder="コントラスト調整OK、など"></textarea>
+      <div class="memo-field-header">
+        <label for="f-memo">メモ</label>
+        <div class="memo-tab-row">
+          <button type="button" class="memo-tab active" id="memo-tab-edit">編集</button>
+          <button type="button" class="memo-tab" id="memo-tab-preview">プレビュー</button>
+        </div>
+      </div>
+      <textarea id="f-memo" placeholder="コントラスト調整OK、など&#10;Markdown対応: # 見出し / - 箇条書き / - [ ] タスク / `コード`"></textarea>
+      <div class="memo-preview" id="f-memo-preview" hidden></div>
     </div>
   </div>
   <div class="modal-footer">
-    <button class="btn danger-text" id="btn-delete-card">タスクを削除</button>
+    <div style="display:flex; gap:8px;">
+      <button class="btn danger-text" id="btn-delete-card">タスクを削除</button>
+      <button class="btn ghost" id="btn-duplicate-card" title="Ctrl+D">複製</button>
+    </div>
     <button class="btn primary" id="btn-save-card">保存</button>
   </div>
 </div>
@@ -672,6 +735,46 @@
 <div class="bulk-bar" id="bulk-bar" hidden>
   <span id="bulk-count">0件選択中</span>
   <select id="bulk-move-select"><option value="">移動先を選択...</option></select>
+  <div class="bulk-action-wrap">
+    <button type="button" class="btn ghost small" id="bulk-action-btn">一括操作 ▾</button>
+    <div class="bulk-action-popover" id="bulk-action-popover">
+      <div id="bulk-priority-section">
+        <div class="filter-label">優先度変更</div>
+        <div class="prio-row" id="bulk-priority-row">
+          <button type="button" class="prio-choice" data-prio="low"><span class="prio-dot prio-low"></span>低</button>
+          <button type="button" class="prio-choice" data-prio="mid"><span class="prio-dot prio-mid"></span>中</button>
+          <button type="button" class="prio-choice" data-prio="high"><span class="prio-dot prio-high"></span>高</button>
+        </div>
+      </div>
+      <div id="bulk-group-section">
+        <div class="filter-label">グループ変更</div>
+        <select id="bulk-group-select"></select>
+        <p class="bulk-hint" id="bulk-group-hint"></p>
+      </div>
+      <div id="bulk-due-section">
+        <div class="filter-label">目標日を設定</div>
+        <div class="filter-date-row">
+          <button type="button" class="date-btn empty" id="bulk-due-btn">未設定</button>
+          <button type="button" class="btn ghost small" id="bulk-due-clear">クリア</button>
+        </div>
+      </div>
+      <div id="bulk-assignee-section" hidden>
+        <div class="filter-label">担当者を変更</div>
+        <div class="filter-date-row">
+          <input type="text" id="bulk-assignee-input" placeholder="担当者名" />
+          <button type="button" class="btn ghost small" id="bulk-assignee-apply">設定</button>
+        </div>
+      </div>
+      <div id="bulk-tag-section">
+        <div class="filter-label">タグを追加</div>
+        <div class="tag-input-wrap">
+          <input type="text" class="tag-input-field" id="bulk-tag-add-input" placeholder="入力してEnterで追加" />
+        </div>
+        <div class="filter-label" style="margin-top:8px;">タグを削除</div>
+        <div class="bulk-tag-remove-row" id="bulk-tag-remove-row"></div>
+      </div>
+    </div>
+  </div>
   <button class="btn danger-text small" id="bulk-delete">削除</button>
   <button class="btn ghost small" id="bulk-clear">選択解除</button>
 </div>
@@ -684,8 +787,16 @@
   "use strict";
 
   var STORAGE_KEY = "task_tracker_prototype_v3";
+  var SCHEMA_VERSION = 1;
 
-  function uid(prefix) { return prefix + "-" + Math.random().toString(36).slice(2, 9); }
+  function uid() {
+    if (window.crypto && typeof crypto.randomUUID === "function") return crypto.randomUUID();
+    return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function (c) {
+      var r = (Math.random() * 16) | 0;
+      var v = c === "x" ? r : (r & 0x3) | 0x8;
+      return v.toString(16);
+    });
+  }
   function pad2(n) { return n < 10 ? "0" + n : "" + n; }
   function toDateStr(y, m, d) { return y + "-" + pad2(m + 1) + "-" + pad2(d); }
   function todayStr() { var t = new Date(); return toDateStr(t.getFullYear(), t.getMonth(), t.getDate()); }
@@ -697,64 +808,147 @@
   }
   function initials(name) { return name ? name.trim().slice(0, 1) : "?"; }
 
+  /* ================= 簡易 Markdown（メモ欄） ================= */
+  function renderMarkdownLite(text) {
+    var lines = String(text || "").split("\n");
+    var html = "";
+    var inList = false;
+    function closeList() { if (inList) { html += "</ul>"; inList = false; } }
+    function inlineFmt(s) {
+      s = escapeHtml(s);
+      s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
+      s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+      return s;
+    }
+    lines.forEach(function (line) {
+      var h = line.match(/^(#{1,3})\s+(.*)$/);
+      var task = line.match(/^-\s+\[([ xX])\]\s+(.*)$/);
+      var bullet = line.match(/^-\s+(.*)$/);
+      if (h) {
+        closeList();
+        var level = h[1].length;
+        html += '<div class="md-h md-h' + level + '">' + inlineFmt(h[2]) + '</div>';
+      } else if (task) {
+        if (!inList) { html += '<ul class="md-list">'; inList = true; }
+        var checked = task[1].toLowerCase() === "x";
+        html += '<li class="md-task' + (checked ? " done" : "") + '"><span class="md-checkbox">' + (checked ? "☑" : "☐") + '</span>' + inlineFmt(task[2]) + '</li>';
+      } else if (bullet) {
+        if (!inList) { html += '<ul class="md-list">'; inList = true; }
+        html += '<li>' + inlineFmt(bullet[1]) + '</li>';
+      } else if (line.trim() === "") {
+        closeList();
+      } else {
+        closeList();
+        html += '<p class="md-p">' + inlineFmt(line) + '</p>';
+      }
+    });
+    closeList();
+    return html;
+  }
+  function stripMarkdown(text) {
+    return String(text || "")
+      .replace(/^#{1,3}\s+/gm, "")
+      .replace(/^-\s+\[[ xX]\]\s+/gm, "")
+      .replace(/^-\s+/gm, "")
+      .replace(/`([^`]+)`/g, "$1")
+      .replace(/\*\*([^*]+)\*\*/g, "$1")
+      .trim();
+  }
+  function countChecklist(text) {
+    var lines = String(text || "").split("\n");
+    var total = 0, done = 0;
+    lines.forEach(function (line) {
+      var m = line.match(/^-\s+\[([ xX])\]\s+/);
+      if (m) { total++; if (m[1].toLowerCase() === "x") done++; }
+    });
+    return total > 0 ? { done: done, total: total } : null;
+  }
+
+  var DEFAULT_SAVE_PATH = "Z:/Users/ku_kageya/task_tracker/board.json";
+
   function sampleData() {
     var now = new Date().toISOString();
-    var grpProjA = uid("grp");
+    var grpProjA = uid();
     return {
-      settings: { multiUser: false, currentUser: "泉谷", savePath: "", sortMode: "created", priorityEnabled: true, groupsEnabled: true, tagsEnabled: true, theme: "dark" },
+      schemaVersion: SCHEMA_VERSION,
+      settings: { multiUser: false, currentUser: "泉谷", savePath: DEFAULT_SAVE_PATH, sortMode: "created", priorityEnabled: true, groupsEnabled: true, tagsEnabled: true, theme: "dark", collapsedGroupIds: [] },
       columns: [
         {
-          id: uid("col"), name: "未着手", order: 0, fixed: "start", groups: [], color: null,
+          id: uid(), name: "未着手", fixed: "start", groups: [], color: null,
           cards: [
-            { id: uid("card"), title: "仕様書のレビュー", memo: "初稿を確認してコメントする。特に列固定の仕様まわり。", assignee: "泉谷", priority: "high", startDate: "", dueDate: "2026-08-05", tags: ["ドキュメント"], links: [], groupId: null, createdAt: now },
-            { id: uid("card"), title: "参考ツールのスクリーンショット整理", memo: "", assignee: "泉谷", priority: "low", startDate: "", dueDate: "", tags: [], links: [], groupId: null, createdAt: now }
+            { id: uid(), title: "仕様書のレビュー", memo: "### 確認項目\n- [x] 構成案の確認\n- [ ] 承認依頼の発行\n\n`v0.10` レビュー反映済み。", assignee: "泉谷", priority: "high", startDate: "", dueDate: "2026-08-05", tags: ["ドキュメント"], links: [], groupId: null, createdAt: now, updatedAt: now },
+            { id: uid(), title: "参考ツールのスクリーンショット整理", memo: "", assignee: "泉谷", priority: "low", startDate: "", dueDate: "", tags: [], links: [], groupId: null, createdAt: now, updatedAt: now }
           ]
         },
         {
-          id: uid("col"), name: "進行中", order: 1, fixed: null, color: "#3b82f6",
-          groups: [{ id: grpProjA, name: "プロジェクトA", order: 0 }],
+          id: uid(), name: "進行中", fixed: null, color: "#3b82f6",
+          groups: [{ id: grpProjA, name: "プロジェクトA" }],
           cards: [
-            { id: uid("card"), title: "カンバンUIプロトタイプ v3", memo: "中央モーダル・グループ・タグまで実装する", assignee: "泉谷", priority: "high", startDate: "2026-08-01", dueDate: "2026-08-03", tags: ["UI", "急ぎ"], links: [
-              { id: uid("lnk"), label: "プロトタイプ本体", url: "D:/Projects/Dev/Task_Tracker/prototype/index.html" }
-            ], groupId: grpProjA, createdAt: now },
-            { id: uid("card"), title: "データモデルのJSON設計", memo: "グループ・タグ・並び順を追加", assignee: "泉谷", priority: "mid", startDate: "2026-07-30", dueDate: "2026-08-06", tags: ["設計"], links: [], groupId: grpProjA, createdAt: now },
-            { id: uid("card"), title: "参考資料の収集", memo: "", assignee: "泉谷", priority: "low", startDate: "", dueDate: "", tags: [], links: [], groupId: null, createdAt: now }
+            { id: uid(), title: "カンバンUIプロトタイプ v0.10", memo: "レビュー指摘の反映（1-1〜1-10, 2-1〜2-8, 3-1〜3-10）", assignee: "泉谷", priority: "high", startDate: "2026-08-01", dueDate: "2026-08-03", tags: ["UI", "急ぎ"], links: [
+              { id: uid(), label: "プロトタイプ本体", url: "./prototype/index.html", isRelative: true }
+            ], groupId: grpProjA, createdAt: now, updatedAt: now },
+            { id: uid(), title: "データモデルのJSON設計", memo: "order廃止・collapsed分離・schemaVersion整数化", assignee: "泉谷", priority: "mid", startDate: "2026-07-30", dueDate: "2026-08-06", tags: ["設計"], links: [], groupId: grpProjA, createdAt: now, updatedAt: now },
+            { id: uid(), title: "参考資料の収集", memo: "", assignee: "泉谷", priority: "low", startDate: "", dueDate: "", tags: [], links: [], groupId: null, createdAt: now, updatedAt: now }
           ]
         },
         {
-          id: uid("col"), name: "最終確認", order: 2, fixed: null, groups: [], color: "#a855f7",
+          id: uid(), name: "最終確認", fixed: null, groups: [], color: "#a855f7",
           cards: [
-            { id: uid("card"), title: "仕様書ドラフト v0.3", memo: "フィードバック反映済み。最終チェック待ち。", assignee: "泉谷", priority: "mid", startDate: "2026-07-28", dueDate: "2026-08-03", tags: ["ドキュメント"], links: [
-              { id: uid("lnk"), label: "仕様書", url: "docs/spec.md" }
-            ], groupId: null, createdAt: now }
+            { id: uid(), title: "仕様書ドラフト v0.10", memo: "フィードバック反映済み。最終チェック待ち。", assignee: "泉谷", priority: "mid", startDate: "2026-07-28", dueDate: "2026-08-03", tags: ["ドキュメント"], links: [
+              { id: uid(), label: "仕様書", url: "./docs/spec.md", isRelative: true }
+            ], groupId: null, createdAt: now, updatedAt: now }
           ]
         },
         {
-          id: uid("col"), name: "完了", order: 3, fixed: "end", groups: [], color: null,
+          id: uid(), name: "完了", fixed: "end", groups: [], color: null,
           cards: [
-            { id: uid("card"), title: "shot_tracker のUI調査", memo: "画面構成・データ項目を洗い出し済み", assignee: "泉谷", priority: "low", startDate: "2026-07-25", dueDate: "2026-07-29", tags: [], links: [], groupId: null, createdAt: now }
+            { id: uid(), title: "shot_tracker のUI調査", memo: "画面構成・データ項目を洗い出し済み", assignee: "泉谷", priority: "low", startDate: "2026-07-25", dueDate: "2026-07-29", tags: [], links: [], groupId: null, createdAt: now, updatedAt: now }
           ]
         }
       ]
     };
   }
 
+  function normalizeColumnPositions() {
+    var start = state.columns.filter(function (c) { return c.fixed === "start"; });
+    var end = state.columns.filter(function (c) { return c.fixed === "end"; });
+    var mid = state.columns.filter(function (c) { return !c.fixed; });
+    state.columns = start.concat(mid, end);
+  }
+
   function migrate(data) {
-    if (!data.settings) data.settings = { multiUser: false, currentUser: "泉谷", savePath: "", sortMode: "created", priorityEnabled: true, groupsEnabled: true, tagsEnabled: true, theme: "dark" };
+    data.schemaVersion = SCHEMA_VERSION;
+    if (!data.settings) data.settings = { multiUser: false, currentUser: "泉谷", savePath: DEFAULT_SAVE_PATH, sortMode: "created", priorityEnabled: true, groupsEnabled: true, tagsEnabled: true, theme: "dark", collapsedGroupIds: [] };
     if (data.settings.sortMode !== "manual") data.settings.sortMode = "created";
     if (data.settings.priorityEnabled === undefined) data.settings.priorityEnabled = true;
     if (data.settings.groupsEnabled === undefined) data.settings.groupsEnabled = true;
     if (data.settings.tagsEnabled === undefined) data.settings.tagsEnabled = true;
     if (data.settings.theme !== "light") data.settings.theme = "dark";
+    if (!data.settings.savePath) data.settings.savePath = DEFAULT_SAVE_PATH;
+    if (!data.settings.collapsedGroupIds) data.settings.collapsedGroupIds = [];
+    var hadOrder = (data.columns || []).some(function (c) { return c.order !== undefined; });
+    var repairCount = 0;
     (data.columns || []).forEach(function (c) {
       if (!c.groups) c.groups = [];
       if (c.color === undefined) c.color = null;
+      c.groups.forEach(function (g) {
+        if (g.collapsed) { if (data.settings.collapsedGroupIds.indexOf(g.id) === -1) data.settings.collapsedGroupIds.push(g.id); }
+        delete g.collapsed;
+        delete g.order;
+      });
+      delete c.order;
+      var validGroupIds = c.groups.map(function (g) { return g.id; });
       (c.cards || []).forEach(function (cd) {
         if (!cd.tags) cd.tags = [];
         if (!cd.links) cd.links = [];
+        cd.links.forEach(function (lk) { if (lk.isRelative === undefined) lk.isRelative = false; });
         if (cd.groupId === undefined) cd.groupId = null;
+        if (cd.groupId && validGroupIds.indexOf(cd.groupId) === -1) { cd.groupId = null; repairCount++; }
+        if (!cd.updatedAt) cd.updatedAt = cd.createdAt || new Date().toISOString();
       });
     });
+    if (hadOrder) normalizeColumnPositions();
+    migrate.lastRepairCount = repairCount;
     return data;
   }
 
@@ -765,7 +959,38 @@
     } catch (e) {}
     return sampleData();
   }
-  function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+  var BAK2_INTERVAL_MS = 10 * 60 * 1000;
+  var saveTimer = null;
+  function setSaveStatus(kind) {
+    var el = document.getElementById("save-status");
+    if (!el) return;
+    if (kind === "saving") { el.textContent = "保存中…"; el.classList.add("saving"); }
+    else { el.textContent = "保存済み"; el.classList.remove("saving"); }
+  }
+  // バックアップは時間軸で世代を分ける。3回連続保存で全世代が最新化してしまわないようにするため。
+  // .bak1 = 直前の保存 / .bak2 = 10分以上前の状態（10分ごとに更新） / .bak3 = このセッションを開始した時点の状態（起動時に1回）
+  function persistNow() {
+    try {
+      var current = localStorage.getItem(STORAGE_KEY);
+      if (current !== null) {
+        var lastBak2At = parseInt(localStorage.getItem(STORAGE_KEY + "_bak2_at") || "0", 10);
+        if (Date.now() - lastBak2At >= BAK2_INTERVAL_MS) {
+          localStorage.setItem(STORAGE_KEY + "_bak2", current);
+          localStorage.setItem(STORAGE_KEY + "_bak2_at", String(Date.now()));
+        }
+        localStorage.setItem(STORAGE_KEY + "_bak1", current);
+      }
+    } catch (e) {}
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    setSaveStatus("saved");
+  }
+  // 実運用（Electron版）ではここで fs への書き込みを 500ms デバウンスし、上記3世代を .bak1〜.bak3 ファイルとして保持する想定。
+  // プロトタイプでは同じ挙動を localStorage 上で再現する。
+  function save() {
+    setSaveStatus("saving");
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(persistNow, 500);
+  }
 
   var UNDO_LIMIT = 50;
   function pushUndoSnapshot() {
@@ -800,6 +1025,7 @@
   }
 
   var state = load();
+  try { localStorage.setItem(STORAGE_KEY + "_bak3", JSON.stringify(state)); } catch (e) {}
   var currentCardCtx = null;
   var currentLinks = [];
   var currentTags = [];
@@ -811,6 +1037,7 @@
   var selectedCardIds = new Set();
   var undoStack = [];
   var redoStack = [];
+  var lastTouchedColId = null;
 
   var filters = { priorities: new Set(), dueFrom: "", dueTo: "", assignee: "", tags: new Set() };
 
@@ -969,7 +1196,15 @@
 
   function cardMatchesFilters(card) {
     var q = searchInput.value.trim().toLowerCase();
-    if (q && (card.title || "").toLowerCase().indexOf(q) === -1) return false;
+    if (q) {
+      var haystack = [
+        card.title || "",
+        card.memo || "",
+        (card.tags || []).join(" "),
+        (card.links || []).map(function (l) { return l.label || ""; }).join(" ")
+      ].join(" ").toLowerCase();
+      if (haystack.indexOf(q) === -1) return false;
+    }
     if (state.settings.priorityEnabled !== false && filters.priorities.size > 0 && !filters.priorities.has(card.priority || "mid")) return false;
     if (filters.dueFrom && (!card.dueDate || card.dueDate < filters.dueFrom)) return false;
     if (filters.dueTo && (!card.dueDate || card.dueDate > filters.dueTo)) return false;
@@ -981,6 +1216,12 @@
       if ((card.assignee || "").toLowerCase().indexOf(filters.assignee.toLowerCase()) === -1) return false;
     }
     return true;
+  }
+  function isFilterActive() {
+    return !!(searchInput.value.trim() || filters.priorities.size || filters.dueFrom || filters.dueTo || filters.tags.size || filters.assignee);
+  }
+  function manualReorderAllowed() {
+    return state.settings.sortMode === "manual" && !isFilterActive();
   }
 
   function allTagsInBoard() {
@@ -1004,7 +1245,9 @@
       tagsHtml = '<div class="card-tags">' + card.tags.map(function (t) { return '<span class="tag-pill">#' + escapeHtml(t) + '</span>'; }).join("") + '</div>';
     }
 
-    var memoHtml = card.memo ? '<div class="card-memo">' + escapeHtml(card.memo) + '</div>' : "";
+    var checklist = countChecklist(card.memo);
+    var checklistHtml = checklist ? '<span class="checklist-badge">☑ ' + checklist.done + '/' + checklist.total + '</span> ' : "";
+    var memoHtml = card.memo ? '<div class="card-memo">' + checklistHtml + escapeHtml(stripMarkdown(card.memo)) + '</div>' : "";
 
     var dateHtml = "";
     var info = dateRangeInfo(card);
@@ -1020,7 +1263,7 @@
     if (card.links && card.links.length) {
       linksHtml = '<div class="card-links">' + card.links.map(function (lk) {
         var label = lk.label || lk.url;
-        return '<button type="button" class="link-chip" data-url="' + escapeHtml(lk.url) + '"><span>🔗</span><span class="lbl">' + escapeHtml(label) + '</span></button>';
+        return '<button type="button" class="link-chip" data-url="' + escapeHtml(lk.url) + '" data-relative="' + (lk.isRelative ? "1" : "0") + '"><span>🔗</span><span class="lbl">' + escapeHtml(label) + '</span>' + (lk.isRelative ? '<span class="link-rel-badge" title="保存先フォルダを基準にした相対パス">相対</span>' : '') + '</button>';
       }).join("") + '</div>';
     }
 
@@ -1037,7 +1280,7 @@
       tagsHtml + memoHtml + dateHtml + linksHtml + metaHtml;
 
     cardEl.querySelectorAll(".link-chip").forEach(function (chip) {
-      chip.addEventListener("click", function (e) { e.stopPropagation(); openLink(chip.dataset.url); });
+      chip.addEventListener("click", function (e) { e.stopPropagation(); openLink(chip.dataset.url, chip.dataset.relative === "1"); });
     });
 
     cardEl.addEventListener("click", function (e) {
@@ -1053,7 +1296,7 @@
     cardEl.addEventListener("dragend", function () { cardEl.classList.remove("dragging"); dragCardId = null; });
 
     cardEl.addEventListener("dragover", function (e) {
-      if (!dragCardId || dragCardId === card.id || state.settings.sortMode !== "manual") return;
+      if (!dragCardId || dragCardId === card.id || !manualReorderAllowed()) return;
       e.preventDefault();
       e.stopPropagation();
       var rect = cardEl.getBoundingClientRect();
@@ -1063,7 +1306,7 @@
     });
     cardEl.addEventListener("dragleave", function () { cardEl.classList.remove("drop-before", "drop-after"); });
     cardEl.addEventListener("drop", function (e) {
-      if (!dragCardId || dragCardId === card.id || state.settings.sortMode !== "manual") return;
+      if (!dragCardId || dragCardId === card.id || !manualReorderAllowed()) return;
       e.preventDefault();
       e.stopPropagation();
       var rect = cardEl.getBoundingClientRect();
@@ -1075,9 +1318,11 @@
     return cardEl;
   }
 
-  function openLink(url) {
+  function openLink(url, isRelative) {
     if (/^https?:\/\//i.test(url)) {
       window.open(url, "_blank", "noopener");
+    } else if (isRelative) {
+      showToast("相対パスです。Electron版では保存先フォルダ（settings.savePath）を基準に絶対パスへ解決してから開きます。");
     } else {
       showToast("ローカルパスです。Electron版ではOSの既定アプリ／File Explorerで開きます。");
     }
@@ -1090,10 +1335,9 @@
     var multiUser = state.settings.multiUser;
     var manual = state.settings.sortMode === "manual";
     var groupsOn = state.settings.groupsEnabled !== false;
+    var filterActive = isFilterActive();
 
-    var sortedCols = state.columns.slice().sort(function (a, b) { return a.order - b.order; });
-
-    sortedCols.forEach(function (col) {
+    state.columns.forEach(function (col) {
       var filteredCards = col.cards.filter(cardMatchesFilters);
       if (!manual) filteredCards = filteredCards.slice().sort(function (a, b) { return (a.createdAt || "").localeCompare(b.createdAt || ""); });
       total += filteredCards.length;
@@ -1103,6 +1347,7 @@
       colEl.dataset.colId = col.id;
       if (col.color) colEl.style.borderTopColor = col.color;
 
+      var countLabel = filterActive ? (filteredCards.length + "/" + col.cards.length) : String(col.cards.length);
       var header = document.createElement("div");
       header.className = "column-header" + (col.fixed ? "" : " draggable");
       header.draggable = !col.fixed;
@@ -1110,7 +1355,7 @@
         '<span class="column-name" data-col-id="' + col.id + '" tabindex="0">' + escapeHtml(col.name) + '</span>' +
         '<button type="button" class="column-color-btn" data-action="color" data-col-id="' + col.id + '" title="タブの色"' + (col.color ? ' style="background:' + col.color + ';border-color:' + col.color + '"' : '') + '></button>' +
         (col.fixed ? '<span class="column-lock" title="固定タブ（削除・移動不可）">🔒</span>' : '') +
-        '<span class="column-count">' + col.cards.length + '</span>' +
+        '<span class="column-count"' + (filterActive ? ' title="表示件数/全件数"' : '') + '>' + countLabel + '</span>' +
         (col.fixed ? '' : '<button class="column-menu-btn" data-action="delete-col" data-col-id="' + col.id + '" title="このタブを削除">×</button>');
       colEl.appendChild(header);
 
@@ -1122,7 +1367,7 @@
         filteredCards.forEach(function (card) { list.appendChild(buildCardEl(card, col)); });
       } else {
         list.className = "card-list";
-        col.groups.slice().sort(function (a, b) { return a.order - b.order; }).forEach(function (grp) {
+        col.groups.forEach(function (grp) {
           var groupCards = filteredCards.filter(function (c) { return c.groupId === grp.id; });
           list.appendChild(buildGroupBlock(col, grp, groupCards));
         });
@@ -1177,6 +1422,7 @@
     totalCountEl.textContent = "全 " + total + " 件";
     document.getElementById("user-chip").hidden = !multiUser;
     document.getElementById("sort-mode-select").value = state.settings.sortMode;
+    document.getElementById("sort-hint").hidden = !(manual && filterActive);
     document.getElementById("setting-priority-enabled").checked = state.settings.priorityEnabled !== false;
     document.getElementById("setting-groups-enabled").checked = groupsOn;
     document.getElementById("setting-tags-enabled").checked = state.settings.tagsEnabled !== false;
@@ -1192,20 +1438,37 @@
     var block = document.createElement("div");
     block.className = "group-block";
 
+    var collapsed = grp ? state.settings.collapsedGroupIds.indexOf(grp.id) !== -1 : false;
+
     if (grp) {
       var header = document.createElement("div");
       header.className = "group-header";
       header.innerHTML =
+        '<button class="group-collapse-btn" data-action="toggle-collapse" data-col-id="' + col.id + '" data-group-id="' + grp.id + '" title="' + (collapsed ? "展開" : "折りたたむ") + '">' + (collapsed ? "►" : "▼") + '</button>' +
         '<span class="group-name" data-col-id="' + col.id + '" data-group-id="' + grp.id + '" tabindex="0">' + escapeHtml(grp.name) + '</span>' +
         '<span class="group-count">' + cards.length + '</span>' +
         '<button class="group-delete" data-action="delete-group" data-col-id="' + col.id + '" data-group-id="' + grp.id + '" title="グループを削除">×</button>';
       block.appendChild(header);
+      if (collapsed) {
+        header.addEventListener("dragover", function (e) { if (dragCardId) { e.preventDefault(); e.stopPropagation(); header.classList.add("drag-over"); } });
+        header.addEventListener("dragleave", function () { header.classList.remove("drag-over"); });
+        header.addEventListener("drop", function (e) {
+          if (!dragCardId) return;
+          e.preventDefault();
+          e.stopPropagation();
+          header.classList.remove("drag-over");
+          setGroupCollapsed(grp.id, false);
+          moveCardToGroup(dragCardId, col.id, grp.id);
+        });
+      }
     } else if (col.groups && col.groups.length > 0) {
       var uHeader = document.createElement("div");
       uHeader.className = "group-header";
       uHeader.innerHTML = '<span class="group-name">未分類</span><span class="group-count">' + cards.length + '</span>';
       block.appendChild(uHeader);
     }
+
+    if (collapsed) return block;
 
     var groupList = document.createElement("div");
     groupList.className = "group-card-list";
@@ -1234,6 +1497,20 @@
 
     return block;
   }
+  function setGroupCollapsed(groupId, collapsed) {
+    var ids = state.settings.collapsedGroupIds;
+    var idx = ids.indexOf(groupId);
+    if (collapsed && idx === -1) ids.push(groupId);
+    else if (!collapsed && idx !== -1) ids.splice(idx, 1);
+  }
+  function toggleGroupCollapse(colId, groupId) {
+    var col = state.columns.find(function (c) { return c.id === colId; });
+    var grp = col && col.groups.find(function (g) { return g.id === groupId; });
+    if (!grp) return;
+    setGroupCollapsed(groupId, state.settings.collapsedGroupIds.indexOf(groupId) === -1);
+    save();
+    render();
+  }
 
   function attachStaticHandlers() {
     boardEl.querySelectorAll('[data-action="delete-col"]').forEach(function (btn) {
@@ -1250,6 +1527,9 @@
     });
     boardEl.querySelectorAll('[data-action="delete-group"]').forEach(function (btn) {
       btn.addEventListener("click", function (e) { e.stopPropagation(); deleteGroup(btn.dataset.colId, btn.dataset.groupId); });
+    });
+    boardEl.querySelectorAll('[data-action="toggle-collapse"]').forEach(function (btn) {
+      btn.addEventListener("click", function (e) { e.stopPropagation(); toggleGroupCollapse(btn.dataset.colId, btn.dataset.groupId); });
     });
     boardEl.querySelectorAll(".column-name").forEach(function (el) {
       el.addEventListener("dblclick", function () { startRenameColumn(el); });
@@ -1339,31 +1619,34 @@
 
   function addColumn(name) {
     pushUndoSnapshot();
-    var newCol = { id: uid("col"), name: name, order: 0, fixed: null, groups: [], cards: [] };
-    state.columns.push(newCol);
-    normalizeColumnOrder();
+    var newCol = { id: uid(), name: name, fixed: null, groups: [], cards: [], color: null };
+    var endIdx = state.columns.findIndex(function (c) { return c.fixed === "end"; });
+    if (endIdx === -1) state.columns.push(newCol);
+    else state.columns.splice(endIdx, 0, newCol);
     save();
     render();
-  }
-
-  function normalizeColumnOrder() {
-    var start = state.columns.filter(function (c) { return c.fixed === "start"; });
-    var end = state.columns.filter(function (c) { return c.fixed === "end"; });
-    var mid = state.columns.filter(function (c) { return !c.fixed; }).sort(function (a, b) { return a.order - b.order; });
-    var ordered = start.concat(mid, end);
-    ordered.forEach(function (c, i) { c.order = i; });
   }
 
   function deleteColumn(colId) {
     var col = state.columns.find(function (c) { return c.id === colId; });
     if (!col || col.fixed) return;
-    if (col.cards.length > 0 && !confirm('「' + col.name + '」には ' + col.cards.length + ' 件のタスクがあります。削除しますか？')) return;
+    var startCol = state.columns.find(function (c) { return c.fixed === "start"; });
+    if (col.cards.length > 0) {
+      var msg = startCol
+        ? '「' + col.name + '」には ' + col.cards.length + ' 件のタスクがあります。削除すると、それらは固定タブ「' + startCol.name + '」へ移動します（グループ所属は未分類にリセット）。よろしいですか？'
+        : '「' + col.name + '」には ' + col.cards.length + ' 件のタスクがあります。削除しますか？';
+      if (!confirm(msg)) return;
+    }
     pushUndoSnapshot();
+    var movedCount = col.cards.length;
+    if (movedCount > 0 && startCol) {
+      col.cards.forEach(function (cd) { cd.groupId = null; });
+      startCol.cards = startCol.cards.concat(col.cards);
+    }
     state.columns = state.columns.filter(function (c) { return c.id !== colId; });
-    normalizeColumnOrder();
     save();
     render();
-    showToast('タブ「' + col.name + '」を削除しました');
+    showToast('タブ「' + col.name + '」を削除しました' + (movedCount > 0 && startCol ? '（' + movedCount + '件を「' + startCol.name + '」へ移動）' : ''));
   }
 
   function reorderColumn(draggedId, targetId) {
@@ -1371,14 +1654,11 @@
     var targetCol = state.columns.find(function (c) { return c.id === targetId; });
     if (!draggedCol || !targetCol || draggedCol.fixed || targetCol.fixed) { dragColId = null; return; }
     pushUndoSnapshot();
-    var mid = state.columns.filter(function (c) { return !c.fixed; }).sort(function (a, b) { return a.order - b.order; });
-    var di = mid.findIndex(function (c) { return c.id === draggedId; });
-    var ti = mid.findIndex(function (c) { return c.id === targetId; });
-    mid.splice(di, 1);
-    mid.splice(ti, 0, draggedCol);
-    mid.forEach(function (c, i) { c.order = i; });
+    var di = state.columns.indexOf(draggedCol);
+    state.columns.splice(di, 1);
+    var ti = state.columns.indexOf(targetCol);
+    state.columns.splice(ti, 0, draggedCol);
     dragColId = null;
-    normalizeColumnOrder();
     save();
     render();
   }
@@ -1387,8 +1667,7 @@
     var col = state.columns.find(function (c) { return c.id === colId; });
     if (!col) return;
     pushUndoSnapshot();
-    var maxOrder = col.groups.reduce(function (m, g) { return Math.max(m, g.order); }, -1);
-    col.groups.push({ id: uid("grp"), name: name, order: maxOrder + 1 });
+    col.groups.push({ id: uid(), name: name });
     save();
     render();
   }
@@ -1474,6 +1753,13 @@
     document.querySelectorAll(".card.selected").forEach(function (el) { el.classList.remove("selected"); });
     updateBulkBar();
   }
+  function getSelectedCards() {
+    var result = [];
+    state.columns.forEach(function (c) {
+      c.cards.forEach(function (cd) { if (selectedCardIds.has(cd.id)) result.push({ card: cd, col: c }); });
+    });
+    return result;
+  }
   function updateBulkBar() {
     var bar = document.getElementById("bulk-bar");
     var count = selectedCardIds.size;
@@ -1482,10 +1768,98 @@
     document.getElementById("bulk-count").textContent = count + "件選択中";
     var select = document.getElementById("bulk-move-select");
     var current = select.value;
-    select.innerHTML = '<option value="">移動先を選択...</option>' + state.columns.slice().sort(function (a, b) { return a.order - b.order; }).map(function (c) {
+    select.innerHTML = '<option value="">移動先を選択...</option>' + state.columns.map(function (c) {
       return '<option value="' + c.id + '">' + escapeHtml(c.name) + '</option>';
     }).join("");
     select.value = current;
+
+    document.getElementById("bulk-priority-section").hidden = state.settings.priorityEnabled === false;
+    document.getElementById("bulk-group-section").hidden = state.settings.groupsEnabled === false;
+    document.getElementById("bulk-tag-section").hidden = state.settings.tagsEnabled === false;
+    document.getElementById("bulk-assignee-section").hidden = !state.settings.multiUser;
+
+    var selected = getSelectedCards();
+    var colIds = Array.from(new Set(selected.map(function (s) { return s.col.id; })));
+    var groupSelect = document.getElementById("bulk-group-select");
+    var groupHint = document.getElementById("bulk-group-hint");
+    if (colIds.length === 1) {
+      var col = state.columns.find(function (c) { return c.id === colIds[0]; });
+      groupSelect.disabled = false;
+      groupSelect.innerHTML = '<option value="">未分類にする</option>' + col.groups.map(function (g) {
+        return '<option value="' + g.id + '">' + escapeHtml(g.name) + '</option>';
+      }).join("");
+      groupHint.textContent = col.groups.length === 0 ? "このタブにはグループがありません" : "";
+    } else {
+      groupSelect.disabled = true;
+      groupSelect.innerHTML = '<option value="">—</option>';
+      groupHint.textContent = "複数のタブにまたがって選択されているため変更できません";
+    }
+
+    var tagSet = new Set();
+    selected.forEach(function (s) { (s.card.tags || []).forEach(function (t) { tagSet.add(t); }); });
+    var tagRow = document.getElementById("bulk-tag-remove-row");
+    var tags = Array.from(tagSet).sort();
+    tagRow.innerHTML = tags.length
+      ? tags.map(function (t) { return '<button type="button" class="bulk-tag-remove-chip" data-tag="' + escapeHtml(t) + '">#' + escapeHtml(t) + ' ×</button>'; }).join("")
+      : '<span class="bulk-hint">選択カードにタグはありません</span>';
+    tagRow.querySelectorAll(".bulk-tag-remove-chip").forEach(function (btn) {
+      btn.addEventListener("click", function () { bulkRemoveTag(btn.dataset.tag); });
+    });
+  }
+  function bulkSetPriority(prio) {
+    pushUndoSnapshot();
+    getSelectedCards().forEach(function (s) { s.card.priority = prio; });
+    save();
+    render();
+    showToast("優先度を「" + ({ high: "高", mid: "中", low: "低" }[prio]) + "」に変更しました");
+  }
+  function bulkSetGroup(groupId) {
+    var selected = getSelectedCards();
+    var colIds = Array.from(new Set(selected.map(function (s) { return s.col.id; })));
+    if (colIds.length !== 1) return;
+    pushUndoSnapshot();
+    selected.forEach(function (s) { s.card.groupId = groupId || null; });
+    save();
+    render();
+    showToast("グループを変更しました");
+  }
+  function bulkSetDueDate(dateStr) {
+    pushUndoSnapshot();
+    getSelectedCards().forEach(function (s) { s.card.dueDate = dateStr; });
+    save();
+    render();
+    showToast(dateStr ? "目標日を " + formatShort(dateStr) + " に設定しました" : "目標日をクリアしました");
+  }
+  function bulkSetAssignee(name) {
+    pushUndoSnapshot();
+    getSelectedCards().forEach(function (s) { s.card.assignee = name; });
+    save();
+    render();
+    showToast("担当者を「" + (name || "未割当") + "」に変更しました");
+  }
+  function bulkAddTag(tag) {
+    tag = tag.trim();
+    if (!tag) return;
+    var lower = tag.toLowerCase();
+    var existing = allTagsInBoard().find(function (t) { return t.toLowerCase() === lower; });
+    var canonical = existing || tag;
+    pushUndoSnapshot();
+    getSelectedCards().forEach(function (s) {
+      if (!s.card.tags) s.card.tags = [];
+      if (!s.card.tags.some(function (t) { return t.toLowerCase() === lower; })) s.card.tags.push(canonical);
+    });
+    save();
+    render();
+    showToast('タグ「#' + canonical + '」を追加しました');
+  }
+  function bulkRemoveTag(tag) {
+    pushUndoSnapshot();
+    getSelectedCards().forEach(function (s) {
+      s.card.tags = (s.card.tags || []).filter(function (t) { return t !== tag; });
+    });
+    save();
+    render();
+    showToast('タグ「#' + tag + '」を削除しました');
   }
   function bulkMoveTo(targetColId) {
     pushUndoSnapshot();
@@ -1516,8 +1890,9 @@
     render();
     showToast(n + "件のタスクを移動しました");
   });
-  document.getElementById("bulk-delete").addEventListener("click", function () {
+  function bulkDeleteSelected() {
     var n = selectedCardIds.size;
+    if (n === 0) return;
     if (!confirm(n + "件のタスクを削除しますか？")) return;
     pushUndoSnapshot();
     state.columns.forEach(function (c) { c.cards = c.cards.filter(function (cd) { return !selectedCardIds.has(cd.id); }); });
@@ -1525,8 +1900,45 @@
     clearSelection();
     render();
     showToast(n + "件のタスクを削除しました");
-  });
+  }
+  document.getElementById("bulk-delete").addEventListener("click", bulkDeleteSelected);
   document.getElementById("bulk-clear").addEventListener("click", clearSelection);
+
+  var bulkActionBtn = document.getElementById("bulk-action-btn");
+  var bulkActionPopover = document.getElementById("bulk-action-popover");
+  bulkActionBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    bulkActionPopover.classList.toggle("open");
+  });
+  document.addEventListener("mousedown", function (e) {
+    if (bulkActionPopover.classList.contains("open") && !bulkActionPopover.contains(e.target) && e.target !== bulkActionBtn) {
+      bulkActionPopover.classList.remove("open");
+    }
+  });
+  document.getElementById("bulk-priority-row").addEventListener("click", function (e) {
+    var btn = e.target.closest(".prio-choice");
+    if (!btn) return;
+    bulkSetPriority(btn.dataset.prio);
+  });
+  document.getElementById("bulk-group-select").addEventListener("change", function (e) {
+    if (e.target.disabled) return;
+    bulkSetGroup(e.target.value);
+  });
+  document.getElementById("bulk-tag-add-input").addEventListener("keydown", function (e) {
+    if (e.key !== "Enter" && e.key !== ",") return;
+    e.preventDefault();
+    bulkAddTag(e.target.value);
+    e.target.value = "";
+  });
+  document.getElementById("bulk-due-btn").addEventListener("click", function () {
+    openCalendar(document.getElementById("bulk-due-btn"), "", function (v) { bulkSetDueDate(v); });
+  });
+  document.getElementById("bulk-due-clear").addEventListener("click", function () { bulkSetDueDate(""); });
+  document.getElementById("bulk-assignee-apply").addEventListener("click", function () {
+    var input = document.getElementById("bulk-assignee-input");
+    bulkSetAssignee(input.value.trim());
+    input.value = "";
+  });
 
   /* ================= カード詳細モーダル ================= */
   var modalScrim = document.getElementById("modal-scrim");
@@ -1534,6 +1946,22 @@
   var fTitle = document.getElementById("f-title");
   var fAssignee = document.getElementById("f-assignee");
   var fMemo = document.getElementById("f-memo");
+  var memoPreview = document.getElementById("f-memo-preview");
+  var memoTabEdit = document.getElementById("memo-tab-edit");
+  var memoTabPreview = document.getElementById("memo-tab-preview");
+  memoTabEdit.addEventListener("click", function () {
+    memoTabEdit.classList.add("active");
+    memoTabPreview.classList.remove("active");
+    memoPreview.hidden = true;
+    fMemo.hidden = false;
+  });
+  memoTabPreview.addEventListener("click", function () {
+    memoTabPreview.classList.add("active");
+    memoTabEdit.classList.remove("active");
+    memoPreview.innerHTML = renderMarkdownLite(fMemo.value);
+    memoPreview.hidden = false;
+    fMemo.hidden = true;
+  });
   var prioRow = document.getElementById("f-priority-row");
   var fStartBtn = document.getElementById("f-start-btn");
   var fDueBtn = document.getElementById("f-due-btn");
@@ -1564,16 +1992,20 @@
 
   function renderLinksEditor() {
     linksListEl.innerHTML = "";
+    var savePathSet = !!state.settings.savePath;
     currentLinks.forEach(function (lk) {
       var row = document.createElement("div");
       row.className = "link-row";
       row.dataset.id = lk.id;
+      var relTitle = savePathSet ? "保存先フォルダを基準にした相対パス" : "保存先が未設定のため使用できません（Setting メニューで保存先を指定してください）";
       row.innerHTML =
         '<input type="text" class="link-label" placeholder="表示名（例: 素材フォルダ）" value="' + escapeHtml(lk.label) + '" />' +
         '<input type="text" class="link-url" placeholder="https:// または Z:/path/..." value="' + escapeHtml(lk.url) + '" />' +
+        '<label class="link-relative-toggle" title="' + relTitle + '"><input type="checkbox" class="link-relative-cb"' + (lk.isRelative ? " checked" : "") + (savePathSet ? "" : " disabled") + ' />相対</label>' +
         '<button type="button" class="link-remove" title="削除">×</button>';
       row.querySelector(".link-label").addEventListener("input", function (e) { lk.label = e.target.value; });
       row.querySelector(".link-url").addEventListener("input", function (e) { lk.url = e.target.value; });
+      row.querySelector(".link-relative-cb").addEventListener("change", function (e) { lk.isRelative = e.target.checked; });
       row.querySelector(".link-remove").addEventListener("click", function () {
         currentLinks = currentLinks.filter(function (x) { return x.id !== lk.id; });
         renderLinksEditor();
@@ -1582,7 +2014,7 @@
     });
   }
   document.getElementById("add-link-btn").addEventListener("click", function () {
-    currentLinks.push({ id: uid("lnk"), label: "", url: "" });
+    currentLinks.push({ id: uid(), label: "", url: "", isRelative: false });
     renderLinksEditor();
   });
 
@@ -1599,9 +2031,31 @@
       tagsWrap.insertBefore(chip, tagInput);
     });
   }
+  function normalizeTagList(tags) {
+    var result = [];
+    tags.forEach(function (t) {
+      var trimmed = String(t || "").trim();
+      if (!trimmed) return;
+      var lower = trimmed.toLowerCase();
+      if (!result.some(function (s) { return s.toLowerCase() === lower; })) result.push(trimmed);
+    });
+    return result;
+  }
+  function updateTagSuggestions() {
+    var list = document.getElementById("tag-suggestions");
+    if (!list) return;
+    list.innerHTML = allTagsInBoard().map(function (t) { return '<option value="' + escapeHtml(t) + '"></option>'; }).join("");
+  }
   function commitTagInput() {
     var v = tagInput.value.trim();
-    if (v && currentTags.indexOf(v) === -1) { currentTags.push(v); renderTagsEditor(); }
+    if (!v) { tagInput.value = ""; return; }
+    var lower = v.toLowerCase();
+    var existing = allTagsInBoard().find(function (t) { return t.toLowerCase() === lower; });
+    var canonical = existing || v;
+    if (!currentTags.some(function (t) { return t.toLowerCase() === lower; })) {
+      currentTags.push(canonical);
+      renderTagsEditor();
+    }
     tagInput.value = "";
   }
   tagInput.addEventListener("keydown", function (e) {
@@ -1615,6 +2069,7 @@
 
   function openDrawer(colId, cardId, presetGroupId) {
     currentCardCtx = { columnId: colId, cardId: cardId };
+    lastTouchedColId = colId;
     var col = state.columns.find(function (c) { return c.id === colId; });
     var card = cardId ? col.cards.find(function (c) { return c.id === cardId; }) : null;
 
@@ -1623,18 +2078,20 @@
     fTitle.value = card ? card.title : "";
     fAssignee.value = card ? card.assignee || "" : "";
     fMemo.value = card ? card.memo || "" : "";
+    memoTabEdit.click();
     fStartDate = card ? card.startDate || "" : todayStr();
     fDueDate = card ? card.dueDate || "" : "";
     updateDateButtons();
-    currentLinks = card && card.links ? card.links.map(function (l) { return { id: l.id || uid("lnk"), label: l.label || "", url: l.url || "" }; }) : [];
+    currentLinks = card && card.links ? card.links.map(function (l) { return { id: l.id || uid(), label: l.label || "", url: l.url || "", isRelative: !!l.isRelative }; }) : [];
     renderLinksEditor();
     currentTags = card && card.tags ? card.tags.slice() : [];
     renderTagsEditor();
+    updateTagSuggestions();
     tagInput.value = "";
     selectedPriority = card ? (card.priority || "mid") : "low";
     updatePrioChoices();
 
-    statusSelect.innerHTML = state.columns.slice().sort(function (a, b) { return a.order - b.order; }).map(function (c) {
+    statusSelect.innerHTML = state.columns.map(function (c) {
       return '<option value="' + c.id + '">' + escapeHtml(c.name) + (c.fixed ? " 🔒" : "") + '</option>';
     }).join("");
     statusSelect.value = colId;
@@ -1645,12 +2102,19 @@
     document.getElementById("f-group-field").style.display = state.settings.groupsEnabled !== false ? "" : "none";
     document.getElementById("f-tags-field").style.display = state.settings.tagsEnabled !== false ? "" : "none";
     document.getElementById("btn-delete-card").style.display = card ? "" : "none";
+    document.getElementById("btn-duplicate-card").style.display = card ? "" : "none";
 
     modalScrim.classList.add("open");
     drawer.classList.add("open");
     setTimeout(function () { fTitle.focus(); }, 50);
   }
-  function closeDrawer() { modalScrim.classList.remove("open"); drawer.classList.remove("open"); currentCardCtx = null; closeCalendar(); }
+  function closeDrawer() {
+    modalScrim.classList.remove("open");
+    drawer.classList.remove("open");
+    currentCardCtx = null;
+    closeCalendar();
+    if (document.activeElement && drawer.contains(document.activeElement)) document.activeElement.blur();
+  }
 
   function updatePrioChoices() {
     prioRow.querySelectorAll(".prio-choice").forEach(function (btn) { btn.classList.toggle("active", btn.dataset.prio === selectedPriority); });
@@ -1665,7 +2129,9 @@
   document.getElementById("drawer-close").addEventListener("click", closeDrawer);
   document.addEventListener("keydown", function (e) {
     if (e.key === "Escape") {
-      if (drawer.classList.contains("open")) closeDrawer();
+      if (calPopover.classList.contains("open")) closeCalendar();
+      else if (colorPopover.classList.contains("open")) closeColorPicker();
+      else if (drawer.classList.contains("open")) closeDrawer();
       else if (selectedCardIds.size > 0) clearSelection();
     }
   });
@@ -1675,10 +2141,15 @@
     commitTagInput();
     var title = fTitle.value.trim();
     if (!title) { fTitle.focus(); return; }
+    if (fStartDate && fDueDate && fDueDate < fStartDate) {
+      if (!confirm("目標日が開始日より前になっています。このまま保存しますか？")) return;
+    }
     var targetCol = state.columns.find(function (c) { return c.id === statusSelect.value; });
     var targetGroupId = groupSelect.value || null;
-    var links = currentLinks.filter(function (l) { return l.url.trim(); }).map(function (l) { return { id: l.id, label: l.label.trim(), url: l.url.trim() }; });
-    var tags = currentTags.slice();
+    var savePathSet = !!state.settings.savePath;
+    var links = currentLinks.filter(function (l) { return l.url.trim(); }).map(function (l) { return { id: l.id, label: l.label.trim(), url: l.url.trim(), isRelative: !!l.isRelative && savePathSet }; });
+    var tags = normalizeTagList(currentTags);
+    var nowIso = new Date().toISOString();
     pushUndoSnapshot();
 
     if (currentCardCtx.cardId) {
@@ -1693,15 +2164,16 @@
       card.priority = selectedPriority;
       card.tags = tags;
       card.groupId = targetGroupId;
+      card.updatedAt = nowIso;
       if (oldCol.id !== targetCol.id) {
         oldCol.cards = oldCol.cards.filter(function (c) { return c.id !== card.id; });
         targetCol.cards.push(card);
       }
     } else {
       targetCol.cards.push({
-        id: uid("card"), title: title, assignee: fAssignee.value.trim(),
+        id: uid(), title: title, assignee: fAssignee.value.trim(),
         startDate: fStartDate, dueDate: fDueDate, links: links, memo: fMemo.value.trim(),
-        priority: selectedPriority, tags: tags, groupId: targetGroupId, createdAt: new Date().toISOString()
+        priority: selectedPriority, tags: tags, groupId: targetGroupId, createdAt: nowIso, updatedAt: nowIso
       });
     }
     save();
@@ -1720,6 +2192,31 @@
     closeDrawer();
     render();
     showToast("削除しました");
+  });
+
+  function duplicateCard(colId, cardId) {
+    var col = state.columns.find(function (c) { return c.id === colId; });
+    var card = col && col.cards.find(function (c) { return c.id === cardId; });
+    if (!card) return;
+    pushUndoSnapshot();
+    var nowIso = new Date().toISOString();
+    var copy = JSON.parse(JSON.stringify(card));
+    copy.id = uid();
+    copy.title = card.title + "のコピー";
+    copy.links = (copy.links || []).map(function (l) { return Object.assign({}, l, { id: uid() }); });
+    copy.createdAt = nowIso;
+    copy.updatedAt = nowIso;
+    var idx = col.cards.indexOf(card);
+    col.cards.splice(idx + 1, 0, copy);
+    save();
+    render();
+    showToast("タスクを複製しました");
+    return copy;
+  }
+  document.getElementById("btn-duplicate-card").addEventListener("click", function () {
+    if (!currentCardCtx || !currentCardCtx.cardId) return;
+    duplicateCard(currentCardCtx.columnId, currentCardCtx.cardId);
+    closeDrawer();
   });
 
   /* ================= フィルター ================= */
@@ -1869,9 +2366,75 @@
   document.addEventListener("keydown", function (e) {
     if (!(e.ctrlKey || e.metaKey)) return;
     var key = e.key.toLowerCase();
-    if (key !== "z") return;
+    if (key === "z") {
+      e.preventDefault();
+      if (e.shiftKey) redo(); else undo();
+    } else if (key === "f") {
+      e.preventDefault();
+      searchInput.focus();
+      searchInput.select();
+    } else if (key === "n") {
+      e.preventDefault();
+      var targetColId = (lastTouchedColId && state.columns.some(function (c) { return c.id === lastTouchedColId; }))
+        ? lastTouchedColId
+        : (state.columns[0] && state.columns[0].id);
+      if (targetColId) openDrawer(targetColId, null);
+    } else if (key === "s") {
+      e.preventDefault();
+      clearTimeout(saveTimer);
+      persistNow();
+      showToast("即時保存しました");
+    } else if (key === "enter") {
+      if (drawer.classList.contains("open")) {
+        e.preventDefault();
+        document.getElementById("btn-save-card").click();
+      }
+    } else if (key === "d") {
+      if (drawer.classList.contains("open") && currentCardCtx && currentCardCtx.cardId) {
+        e.preventDefault();
+        duplicateCard(currentCardCtx.columnId, currentCardCtx.cardId);
+        closeDrawer();
+      } else if (selectedCardIds.size > 0) {
+        e.preventDefault();
+        var toDuplicate = getSelectedCards();
+        pushUndoSnapshot();
+        toDuplicate.forEach(function (s) {
+          var nowIso = new Date().toISOString();
+          var copy = JSON.parse(JSON.stringify(s.card));
+          copy.id = uid();
+          copy.title = s.card.title + "のコピー";
+          copy.links = (copy.links || []).map(function (l) { return Object.assign({}, l, { id: uid() }); });
+          copy.createdAt = nowIso;
+          copy.updatedAt = nowIso;
+          var idx = s.col.cards.indexOf(s.card);
+          s.col.cards.splice(idx + 1, 0, copy);
+        });
+        clearSelection();
+        save();
+        render();
+        showToast(toDuplicate.length + "件を複製しました");
+      }
+    } else if (key === "a") {
+      var active = document.activeElement;
+      var tag = active ? active.tagName : "";
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (active && active.isContentEditable)) return;
+      if (drawer.classList.contains("open")) return;
+      e.preventDefault();
+      document.querySelectorAll(".card").forEach(function (el) {
+        selectedCardIds.add(el.dataset.cardId);
+        el.classList.add("selected");
+      });
+      updateBulkBar();
+    }
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key !== "Delete" && e.key !== "Backspace") return;
+    if (selectedCardIds.size === 0) return;
+    var active = document.activeElement;
+    var tag = active ? active.tagName : "";
+    if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (active && active.isContentEditable)) return;
     e.preventDefault();
-    if (e.shiftKey) redo(); else undo();
+    bulkDeleteSelected();
   });
 
   /* ================= File メニュー ================= */
@@ -1909,6 +2472,16 @@
     URL.revokeObjectURL(url);
     showToast("JSONを書き出しました");
   }
+  function validateBoardData(data) {
+    if (!data || typeof data !== "object") return "JSONのルートがオブジェクトではありません。";
+    if (!Array.isArray(data.columns)) return "columns 配列がありません。";
+    for (var i = 0; i < data.columns.length; i++) {
+      var c = data.columns[i];
+      if (!c || typeof c.id !== "string" || typeof c.name !== "string") return "columns[" + i + "] に id または name がありません。";
+      if (c.cards !== undefined && !Array.isArray(c.cards)) return "columns[" + i + "].cards が配列ではありません。";
+    }
+    return null;
+  }
   document.getElementById("file-import").addEventListener("change", function (e) {
     var file = e.target.files[0];
     if (!file) return;
@@ -1916,13 +2489,16 @@
     reader.onload = function () {
       try {
         var data = JSON.parse(reader.result);
-        if (!data.columns) throw new Error("invalid");
+        var invalidReason = validateBoardData(data);
+        if (invalidReason) { alert("JSONの読み込みに失敗しました。\n" + invalidReason); return; }
+        try { localStorage.setItem(STORAGE_KEY + "_before_import", JSON.stringify(state)); } catch (bakErr) {}
         state = migrate(data);
         undoStack = [];
         redoStack = [];
         save();
         render();
-        showToast("JSONを読み込みました");
+        var repaired = migrate.lastRepairCount || 0;
+        showToast("JSONを読み込みました" + (repaired > 0 ? '（' + repaired + '件の不整合なグループ参照を未分類に修復）' : ""));
       } catch (err) {
         alert("JSONの読み込みに失敗しました。形式を確認してください。");
       }
