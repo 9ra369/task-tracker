@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+
+# Electron build output
+dist/
+out/
+build/
+release/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# Env
+.env
+.env.*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+
+# Local scratch / temp
+*.tmp
