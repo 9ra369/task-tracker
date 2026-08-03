@@ -27,3 +27,12 @@ Thumbs.db
 
 # Local scratch / temp
 *.tmp
+
+# Task tracker のローカルデータ（個人のタスク内容・バックアップ）はコミットしない
+/data/board.json
+/data/board.json.bak1
+/data/board.json.bak2
+/data/board.json.bak3
+/data/.bak2meta.json
+/data/board.before_import.json
+!/data/.gitkeep
