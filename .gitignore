@@ -35,4 +35,5 @@ Thumbs.db
 /data/board.json.bak3
 /data/.bak2meta.json
 /data/board.before_import.json
+/data/.electron-userdata/
 !/data/.gitkeep

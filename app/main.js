@@ -10,10 +10,44 @@ const DATA_DIR = path.join(__dirname, "..", "data");
 const BOARD_FILE = path.join(DATA_DIR, "board.json");
 const BAK2_META_FILE = path.join(DATA_DIR, ".bak2meta.json");
 const BEFORE_IMPORT_FILE = path.join(DATA_DIR, "board.before_import.json");
+const LOG_FILE = path.join(DATA_DIR, "app.log");
 const BAK2_INTERVAL_MS = 10 * 60 * 1000;
 
 var sessionBak3Written = false;
 var mainWindow = null;
+
+function logToFile(line) {
+  try {
+    if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+    fs.appendFileSync(LOG_FILE, "[" + new Date().toISOString() + "] " + line + "\n", "utf8");
+  } catch (e) {}
+}
+
+// 既定の userData（%APPDATA%\task_tracker 等）が環境によっては書き込み権限の問題を起こし、
+// GPU/ディスクキャッシュの作成失敗（Access is denied）からアプリが不安定になることがある。
+// data フォルダ配下の、書き込みが確実にできるとわかっている場所を明示的に使う。
+try {
+  var userDataDir = path.join(DATA_DIR, ".electron-userdata");
+  if (!fs.existsSync(userDataDir)) fs.mkdirSync(userDataDir, { recursive: true });
+  app.setPath("userData", userDataDir);
+} catch (e) {}
+
+// Windows の一部の環境（VM・リモートデスクトップ・特定のグラフィックドライバ等）では
+// GPU プロセスや sandbox 化されたネットワークサービスが不安定になり、ウィンドウが
+// 一瞬表示されて即終了することがある。ハードウェアアクセラレーションを切って回避する。
+app.disableHardwareAcceleration();
+app.commandLine.appendSwitch("disable-gpu");
+app.commandLine.appendSwitch("disable-software-rasterizer");
+
+process.on("uncaughtException", function (err) {
+  logToFile("uncaughtException: " + (err && err.stack ? err.stack : err));
+});
+app.on("render-process-gone", function (event, webContents, details) {
+  logToFile("render-process-gone: " + JSON.stringify(details));
+});
+app.on("child-process-gone", function (event, details) {
+  logToFile("child-process-gone: " + JSON.stringify(details));
+});
 
 function ensureDataDir() {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
@@ -74,19 +108,31 @@ function createWindow() {
       sandbox: true
     }
   });
+  mainWindow.webContents.on("did-fail-load", function (event, errorCode, errorDescription) {
+    logToFile("did-fail-load: " + errorCode + " " + errorDescription);
+  });
+  mainWindow.on("closed", function () {
+    logToFile("window closed");
+    mainWindow = null;
+  });
   mainWindow.loadFile(path.join(__dirname, "renderer", "index.html"));
   mainWindow.setMenuBarVisibility(false);
+  logToFile("window created");
 }
 
 app.whenReady().then(function () {
+  logToFile("app ready (electron " + process.versions.electron + ", node " + process.versions.node + ", platform " + process.platform + ")");
   ensureDataDir();
   createWindow();
   app.on("activate", function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
+}).catch(function (err) {
+  logToFile("whenReady failed: " + (err && err.stack ? err.stack : err));
 });
 
 app.on("window-all-closed", function () {
+  logToFile("window-all-closed");
   if (process.platform !== "darwin") app.quit();
 });
 

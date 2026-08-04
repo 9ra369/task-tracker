@@ -3,7 +3,7 @@ setlocal
 cd /d "%~dp0app"
 
 if not exist "node_modules" (
-    echo Installing dependencies (first run only)...
+    echo Installing dependencies - first run only...
     call npm install
     if errorlevel 1 (
         echo.
@@ -13,9 +13,12 @@ if not exist "node_modules" (
     )
 )
 
+echo Starting task_tracker...
 call npm start
-if errorlevel 1 (
-    echo.
-    echo task_tracker exited with an error.
-    pause
+echo.
+echo task_tracker has closed (exit code %errorlevel%).
+if exist "..\data\app.log" (
+    echo Recent log lines from data\app.log:
+    powershell -NoProfile -Command "Get-Content -Tail 15 '..\data\app.log'"
 )
+pause
